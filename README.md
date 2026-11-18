@@ -1,56 +1,56 @@
-# Transmisión de imágenes con Reed-Muller (sondas espaciales)
+# Proyecto final · Teoría de Códigos
 
-**Teoría de Códigos (MAT 4215) · Proyecto final · Tema 5: Sondas espaciales**
+Aplicación interactiva que compara la transmisión de imágenes con Reed–Muller RM(1,5) y el Golay binario extendido [24,12,8]. Reed–Muller se asocia con Mariner 9 y Golay con Voyager; la aplicación usa ambos como modelos didácticos para la transmisión de imágenes.
 
-**Integrantes:** [Daniel Andrade Cabarcas], [Sharol Castro Caro], [Juan Enriquez Erazo], [Daniela Roncallo Torres]
+## Integrantes
 
-## Descripción
+- Daniel Andrade Cabarcas
+- SHAROL CASTRO CARO
+- JUAN ENRIQUEZ ERAZO
+- Daniela Roncallo Torres
 
-Simulación de la transmisión de una imagen por un canal binario simétrico (cada bit se voltea con probabilidad *p*), con y sin el código **Reed-Muller RM(1,5)** que usó la sonda Mariner 9.
+## Organización
 
-- Parámetros del código: **[n, k, d] = [32, 6, 16]**. Cada píxel de 6 bits (64 niveles de gris) se codifica en una palabra de 32 bits; tasa R = 6/32.
-- Corrige hasta **t = ⌊(d−1)/2⌋ = 7** errores por palabra.
-- Decodificación por mínima distancia de Hamming (máxima correlación con las 64 palabras válidas).
+- `interfaz/`: aplicación por etapas y ejemplos de imagen.
+- `golay/`: codificación, canal y decodificación Golay.
+- `reed-muller/`: codificación, canal y decodificación Reed–Muller.
 
-## Cómo ejecutarlo
+## Ejecución
 
-Requiere Python 3.11 (versión con la que se probó).
+La interfaz usa PyQt6. Desde la carpeta raíz instala las dependencias con `pip install -r requirements.txt` y ejecuta `python interfaz/app.py`.
 
-1. Instalar las librerías: `pip install -r requirements.txt`
-2. Interfaz gráfica: `python SONDAS_ESPACIALES.py`
-   - **Cargar imagen** → escribir el porcentaje de error del canal (0 a 50) → **Transmitir**.
-   - Se muestran la imagen original (6 bits), la recibida sin código y la recuperada con Reed-Muller, junto con las métricas.
-3. Gráficas de error contra *p*: `python Experimentos.py` (usa `imagenes/moon_1.jpg` y guarda `grafica_ber.png`).
+La ventana se abre maximizada. Avanza con las flechas laterales o las teclas ← y →; cada paso tiene su propia diapositiva y una transición horizontal.
 
-## Archivos
+1. En la primera pantalla, elige una imagen y selecciona Golay o Reed–Muller. Se convierte a escala de grises y se reduce a un máximo de 256 × 256 píxeles.
+2. En la pantalla de transmisión, define la probabilidad de error por bit (0–50 %) y pulsa **Transmitir**. La imagen se muestra sola para destacar el efecto del canal sin código.
+3. Avanza a la pantalla de decodificación y pulsa **Decodificar** para ver sola la imagen recuperada.
+4. La última pantalla presenta las tres imágenes juntas para compararlas.
 
-| Archivo | Contenido |
-|---|---|
-| `nucleo.py` | Núcleo: matriz generadora G, codificador, canal, decodificador y métricas |
-| `Experimentos.py` | Barrido de *p* y gráficas de BER y capacidad de corrección |
-| `SONDAS_ESPACIALES.py` | Interfaz gráfica (customtkinter) |
-| `imagenes/` | Imágenes de prueba |
+Golay usa bloques de 12 bits codificados en 24. Su distancia mínima es `d = 8`, así que el radio de corrección garantizado es `t = floor((d - 1) / 2) = 3`: si se alteran hasta 3 bits, la palabra original sigue siendo la única palabra válida a esa distancia. Con más errores el decodificador puede elegir una palabra incorrecta. Reed–Muller RM(1,5) codifica 6 bits en 32, tiene distancia mínima 16 y corrige hasta 7 errores por palabra. La salida conserva respectivamente 8 y 6 bits de intensidad por píxel.
 
-## Resultados principales
+### Nota histórica
 
-[COMPLETAR después de correr `Experimentos.py`]
+La guía del curso presenta Golay en el contexto de las imágenes de Voyager. La documentación técnica de telemetría consultada precisa que, durante los encuentros con Júpiter y Saturno, el Golay (24,12) protegía datos científicos no visuales y de ingeniería, mientras que las imágenes usaban el canal convolucional. Por eso, esta aplicación aplica Golay a píxeles como una simulación educativa y no reproduce toda la cadena histórica de Voyager.
 
-| p | BER sin código | BER con Reed-Muller | PSNR sin / con (dB) |
-|---|---|---|---|
-| [ ] | [ ] | [ ] | [ ] |
+## Presentación y resultados
 
-**Conclusión:** [COMPLETAR]
+En una simulación reproducible sobre `moon_1.jpg` (96 × 64, cinco repeticiones por p), Reed–Muller obtuvo menor BER decodificado que Golay en todos los niveles medidos. A `p = 20 %`, Golay superó el BER sin código, coherente con que ese nivel de ruido excede con frecuencia su capacidad correctora de 3 errores por palabra.
 
-## Declaración de herramientas
+| p | BER Golay, sin → con código | BER Reed–Muller, sin → con código |
+|---:|---:|---:|
+| 1 % | 0.009953 → 0.000049 | 0.009798 → 0.000000 |
+| 5 % | 0.050037 → 0.006873 | 0.049843 → 0.000000 |
+| 10 % | 0.099849 → 0.054989 | 0.099593 → 0.000407 |
+| 20 % | 0.199015 → 0.222591 | 0.199436 → 0.031923 |
 
-[REVISAR Y AJUSTAR para que describa lo que realmente hizo cada integrante.]
+El método, la tabla PSNR y las conclusiones completas están en [interfaz/RESULTADOS.md](interfaz/RESULTADOS.md). La presentación en PDF (máximo 8 diapositivas) se entrega junto con el aplicativo y este README, en una carpeta comprimida.
 
-Se usó **Claude (Anthropic)** como apoyo para: (1) explicar los conceptos del tema (Reed-Muller, decodificación por mínima distancia, métricas BER y PSNR); (2) proponer la estructura del proyecto en tres archivos y una versión de referencia del núcleo (`nucleo.py`), de `Experimentos.py` y de la interfaz, que luego el grupo revisó, probó y adaptó; (3) ayudar a depurar errores de ejecución y a usar git y GitHub.
+### Fuentes
 
-Todos los integrantes revisaron el código del núcleo y pueden explicarlo y modificarlo en vivo.
+- Guía del Proyecto Final de Teoría de Códigos, MAT 4215, Universidad del Norte, temas 5 y 8.
+- Range Commanders Council, [IRIG 106-17, capítulo 7, apéndice A](https://www.irig106.org/docs/106-17/chapter7.pdf): define el Golay binario extendido como [24,12,8] e indica su capacidad de corrección de 3 bits.
+- Michael Rice, [“A History of Channel Coding in Aeronautical Mobile Telemetry and Deep-Space Telemetry”](https://pmc.ncbi.nlm.nih.gov/articles/PMC11353454/), *Entropy* 26(8), 694 (2024): describe el uso de Golay y los esquemas de canal de Voyager.
 
-## Fuentes
+## Herramientas y autoría
 
-- Guía del proyecto final, Teoría de Códigos (MAT 4215), Universidad del Norte.
-- [COMPLETAR: libros, artículos y páginas consultadas.]
-- Imágenes: [COMPLETAR: origen de `moon.jpg` y `moon_1.jpg`].
+Se utilizó **OpenAI Codex** como apoyo para diseñar y elaborar la interfaz en PyQt6, organizar el flujo por pantallas y documentar el proyecto. Codex también ayudó a preparar el módulo de simulación Golay. El grupo debe revisar el código y todos sus integrantes deben poder explicar y modificar los módulos.
